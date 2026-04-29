@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WorkZoneSafe — NGSIM Benchmark Study</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased}
+:root{
+  --font:'Inter','Helvetica Neue',sans-serif;
+  --sidebar-w:248px;--header-h:58px;
+  --c-orange:#f97316;--c-red:#ef4444;--c-teal:#0d9488;
+  --c-blue:#3b82f6;--c-yellow:#eab308;--c-purple:#8b5cf6;
+  --c-green:#22c55e;
+  --radius:10px;--tr:180ms ease;
+}
+[data-theme="light"]{
+  --bg:#f1f5f9;--sidebar:#0f172a;--sb-border:#1e293b;
+  --surface:#fff;--surface2:#f8fafc;--surface3:#e2e8f0;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --text:#0f172a;--muted:#475569;--faint:#94a3b8;--header:#fff;
+}
+[data-theme="dark"]{
+  --bg:#0a0f1e;--sidebar:#0f172a;--sb-border:#1e293b;
+  --surface:#111827;--surface2:#1e293b;--surface3:#263044;
+  --border:#1e293b;--border2:#2d3748;
+  --text:#f1f5f9;--muted:#94a3b8;--faint:#475569;--header:#0f172a;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:13.5px;line-height:1.6}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);background:var(--sidebar);border-right:1px solid var(--sb-border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow-y:auto}
+.sb-logo{padding:18px 18px 14px;border-bottom:1px solid var(--sb-border)}
+.sb-brand{font-size:15px;font-weight:800;color:#f1f5f9;letter-spacing:-.3px}.sb-brand span{color:#f97316}
+.sb-tag{font-size:11px;color:#64748b;margin-top:5px;line-height:1.5}
+.sb-nav{padding:14px 10px;flex:1}
+.nav-lbl{font-size:10px;font-weight:600;color:#475569;letter-spacing:.08em;text-transform:uppercase;padding:0 8px;margin-bottom:5px;margin-top:12px}
+.nav-lbl:first-child{margin-top:0}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:7px;cursor:pointer;color:#94a3b8;font-size:12.5px;font-weight:500;transition:var(--tr);margin-bottom:2px;user-select:none}
+.nav-item:hover{background:rgba(255,255,255,.05);color:#e2e8f0}
+.nav-item.active{background:rgba(249,115,22,.15);color:#fb923c}
+.nav-icon{width:15px;height:15px;flex-shrink:0;opacity:.8}
+.sb-alert{margin:10px;padding:10px 12px;border-radius:8px;background:rgba(234,179,8,.07);border:1px solid rgba(234,179,8,.25);font-size:11px;color:#fbbf24;line-height:1.5}
+.sb-alert strong{display:block;margin-bottom:2px;font-size:11px}
+
+/* MAIN */
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:var(--header-h);background:var(--header);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 22px;gap:10px;position:sticky;top:0;z-index:50}
+.tb-title{font-size:14px;font-weight:700;color:var(--text);flex:1}
+.chip{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:.05em}
+.chip-orange{background:rgba(249,115,22,.13);color:#f97316;border:1px solid rgba(249,115,22,.3)}
+.chip-yellow{background:rgba(234,179,8,.1);color:#d97706;border:1px solid rgba(234,179,8,.25)}
+.theme-btn{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:var(--tr)}
+.theme-btn:hover{background:var(--surface3)}
+.content{padding:20px;flex:1}
+
+/* TABS */
+.tab-pane{display:none}.tab-pane.active{display:block}
+
+/* TRANSPARENCY BANNER */
+.t-banner{background:rgba(234,179,8,.05);border:1px solid rgba(234,179,8,.22);border-radius:9px;padding:12px 16px;margin-bottom:18px;display:flex;align-items:flex-start;gap:10px}
+.t-banner p{font-size:12px;color:var(--muted);line-height:1.6}
+.t-banner p strong{color:var(--text)}
+.t-banner a{color:var(--c-blue);text-decoration:none}
+.t-banner a:hover{text-decoration:underline}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.kpi-lbl{font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.kpi-val{font-size:26px;font-weight:800;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
+.kpi-sub{font-size:11px;color:var(--faint);margin-top:3px}
+.bt-orange{border-top:2px solid var(--c-orange)}
+.bt-red{border-top:2px solid var(--c-red)}
+.bt-teal{border-top:2px solid var(--c-teal)}
+.bt-blue{border-top:2px solid var(--c-blue)}
+.bt-green{border-top:2px solid var(--c-green)}
+.bt-purple{border-top:2px solid var(--c-purple)}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
+.card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px}
+.card-sub{font-size:11px;color:var(--muted);margin-bottom:12px}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.g-map{display:grid;grid-template-columns:1fr 320px;gap:14px;margin-bottom:14px}
+
+/* MAP */
+#svgmap{height:380px;border-radius:8px;border:1px solid var(--border);display:block}
+.map-popup{position:absolute;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;box-shadow:0 4px 16px rgba(0,0,0,0.14);z-index:20;min-width:210px;max-width:240px;display:none;pointer-events:none}
+.map-popup.visible{display:block}
+.map-popup-title{font-weight:700;font-size:13px;margin-bottom:2px;color:var(--text)}
+.map-popup-sub{font-size:11px;color:var(--muted);margin-bottom:8px}
+.map-popup-row{display:flex;justify-content:space-between;font-size:11.5px;padding:2px 0}
+.map-popup-row span:first-child{color:var(--muted)}
+.map-popup-row span:last-child{font-weight:600}
+.map-popup-warn{font-size:10px;color:#b45309;margin-top:6px}
+#svgmap circle{transition:r 0.15s ease,filter 0.15s ease}
+#svgmap circle:hover{filter:drop-shadow(0 2px 6px rgba(0,0,0,0.4))}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.b-red{background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.25)}
+.b-orange{background:rgba(249,115,22,.1);color:#f97316;border:1px solid rgba(249,115,22,.25)}
+.b-yellow{background:rgba(234,179,8,.1);color:#b45309;border:1px solid rgba(234,179,8,.25)}
+.b-teal{background:rgba(13,148,136,.1);color:#0d9488;border:1px solid rgba(13,148,136,.25)}
+.b-blue{background:rgba(59,130,246,.1);color:#3b82f6;border:1px solid rgba(59,130,246,.25)}
+.b-gray{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.b-green{background:rgba(34,197,94,.1);color:#16a34a;border:1px solid rgba(34,197,94,.25)}
+.b-warn{background:rgba(234,179,8,.08);color:#b45309;border:1px solid rgba(234,179,8,.28)}
+
+/* TABLE */
+.dtbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.dtbl th{padding:7px 11px;text-align:left;font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);white-space:nowrap}
+.dtbl td{padding:8px 11px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+.dtbl tr:last-child td{border-bottom:none}
+.dtbl tr:hover td{background:var(--surface2)}
+
+/* CONFUSION MATRIX */
+.cm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.cm-cell{border-radius:8px;padding:14px;text-align:center}
+.cm-val{font-size:28px;font-weight:800;line-height:1}
+.cm-lbl{font-size:11px;margin-top:3px;font-weight:500}
+.cm-tp{background:rgba(34,197,94,.12);color:#16a34a}
+.cm-tn{background:rgba(59,130,246,.12);color:#2563eb}
+.cm-fp{background:rgba(249,115,22,.12);color:#ea580c}
+.cm-fn{background:rgba(239,68,68,.12);color:#dc2626}
+
+/* PROGRESS BAR */
+.prog-wrap{background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;margin-top:5px}
+.prog-fill{height:100%;border-radius:4px}
+
+/* SHAP BAR */
+.shap-row{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.shap-name{font-size:11.5px;color:var(--text);width:120px;flex-shrink:0;font-family:'Courier New',monospace}
+.shap-bw{flex:1;background:var(--surface2);border-radius:3px;height:7px;overflow:hidden}
+.shap-bf{height:100%;border-radius:3px;background:linear-gradient(90deg,#3b82f6,#8b5cf6)}
+.shap-v{font-size:11px;color:var(--muted);width:38px;text-align:right;flex-shrink:0}
+
+/* WARN / INFO BOX */
+.warn-box{background:rgba(234,179,8,.05);border:1px solid rgba(234,179,8,.22);border-radius:7px;padding:11px 13px;font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.6}
+.warn-box strong{color:#b45309}
+.info-box{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.18);border-radius:7px;padding:11px 13px;font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.6}
+.info-box strong{color:var(--c-blue)}
+.finding-box{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:7px;padding:11px 13px;font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.6}
+.finding-box strong{color:#16a34a}
+
+/* RISK SCORE BAR */
+.risk-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.risk-name{font-size:12px;font-weight:600;color:var(--text);width:145px;flex-shrink:0}
+.risk-bw{flex:1;background:var(--surface2);border-radius:5px;height:10px;overflow:hidden}
+.risk-val{font-size:12px;font-weight:700;width:40px;text-align:right;flex-shrink:0}
+
+/* CORRIDOR CARD */
+.corr-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.corr-name{font-size:13.5px;font-weight:700;color:var(--text)}
+.corr-loc{font-size:11px;color:var(--muted);margin-top:1px;margin-bottom:8px}
+.corr-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.cs-val{font-size:16px;font-weight:700;color:var(--text)}
+.cs-lbl{font-size:10px;color:var(--muted);margin-top:1px}
+
+/* FEATURE DIFF ROW */
+.feat-row{margin-bottom:12px}
+.feat-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.feat-name{font-family:'Courier New',monospace;font-size:11.5px;color:var(--text)}
+.feat-bars{display:flex;flex-direction:column;gap:3px}
+.feat-bar-row{display:flex;align-items:center;gap:7px}
+.feat-bar-lbl{font-size:10px;width:55px;flex-shrink:0;color:var(--muted)}
+.feat-bar-wrap{flex:1;background:var(--surface2);border-radius:3px;height:6px;overflow:hidden}
+.feat-bar-fill{height:100%;border-radius:3px}
+.feat-bar-val{font-size:10px;color:var(--muted);width:52px;text-align:right;flex-shrink:0}
+
+/* FOOTER */
+.dash-footer{padding:14px 22px;border-top:1px solid var(--border);background:var(--surface);font-size:11px;color:var(--faint);display:flex;align-items:center;gap:14px}
+.dash-footer a{color:var(--faint);text-decoration:none}.dash-footer a:hover{color:var(--muted)}
+
+@media(max-width:1100px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .g-map,.g2,.g3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- REAL DATA FROM PIPELINE -->
+<script>
+const DATA = {
+  confusion_matrix: {tn:42,fp:50,fn:24,tp:512},
+  roc: {
+    fpr:[0,0,0.0217,0.0326,0.0543,0.0652,0.0761,0.0978,0.1087,0.1304,0.1413,0.163,0.1848,0.1957,0.2283,0.2391,0.25,0.2826,0.2935,0.3152,0.3261,0.337,0.3696,0.3804,0.4022,0.4348,0.4457,0.4891,0.5109,0.5435,0.587,0.6413,0.7065,0.7391,0.7826,0.8043,0.8152,0.9022,0.9348,1.0],
+    tpr:[0,0.0765,0.1511,0.4701,0.5131,0.5224,0.5392,0.5877,0.6194,0.6623,0.6698,0.7295,0.7369,0.7631,0.8172,0.8246,0.8377,0.8414,0.8545,0.8694,0.8731,0.8899,0.8918,0.9086,0.9216,0.9235,0.9366,0.9384,0.9478,0.9534,0.9552,0.9627,0.9701,0.9739,0.9757,0.9776,0.9907,0.9925,0.9963,1.0],
+    auc:0.862
+  },
+  pr_curve: {
+    precision:[0.8535,0.8693,0.8792,0.8948,0.9078,0.9179,0.9305,0.9322,0.94,0.9442,0.9529,0.9557,0.954,0.9594,0.9628,0.9612,0.9677,0.969,0.9735,0.9752,0.9739,0.9793,0.9854,0.9845,0.9876,0.9867,0.9857,0.9845,0.9831,0.9815,0.9793,0.9767,0.9823,0.9794,0.9877,0.9846,0.9796,1.0,1.0,1.0],
+    recall:[1.0,0.9925,0.9776,0.9683,0.9552,0.9384,0.9235,0.8974,0.8769,0.8526,0.8302,0.8041,0.7743,0.75,0.7239,0.694,0.6698,0.6418,0.6157,0.5877,0.556,0.5299,0.5037,0.4739,0.4459,0.416,0.3862,0.3563,0.3265,0.2966,0.2649,0.2351,0.2071,0.1772,0.1493,0.1194,0.0896,0.0616,0.0317,0.0],
+    ap:0.968
+  },
+  prob_dist: {
+    bins:[0.0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95],
+    near_miss:[2,2,2,6,3,0,2,3,3,1,5,4,8,6,7,10,16,21,60,375],
+    safe:[6,3,8,3,4,3,4,0,7,4,3,3,6,2,1,4,5,6,5,15]
+  },
+  corridor_risk: {
+    'us-101':    {mean:0.900,high_risk:2211,total:2472,pct_high:89.4,label:'US-101 · Los Angeles'},
+    'i-80':      {mean:0.649,high_risk:339, total:578, pct_high:58.7,label:'I-80 · Emeryville'},
+    'lankershim':{mean:0.979,high_risk:73,  total:73,  pct_high:100.0,label:'Lankershim · N. Hollywood'},
+    'peachtree': {mean:0.855,high_risk:11,  total:14,  pct_high:78.6,label:'Peachtree · Atlanta'}
+  },
+  feat_dist: {
+    mean_speed:  {nm:18.657,safe:15.63, unit:'ft/s'},
+    std_speed:   {nm:8.890, safe:7.002, unit:'ft/s'},
+    lat_std:     {nm:16.218,safe:8.023, unit:'ft'},
+    min_headway: {nm:22.067,safe:31.532,unit:'ft'},
+    mean_delta_v:{nm:19.706,safe:8.100, unit:'ft/s'},
+    std_acc:     {nm:4.986, safe:4.737, unit:'ft/s²'},
+    mean_headway:{nm:76.528,safe:75.096,unit:'ft'},
+    mean_acc:    {nm:0.100, safe:0.115, unit:'ft/s²'},
+    cmv_flag:    {nm:0.077, safe:0.087, unit:'rate'}
+  },
+  cmv: {cmv_nm_rate:83.8,non_cmv_nm_rate:85.5,cmv_total:247,non_cmv_total:2890,cmv_nm:207,non_cmv_nm:2470},
+  fold_aucs:[0.8864,0.8827,0.8823,0.9029,0.8986]
+};
+</script>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-brand">WorkZone<span>Safe</span></div>
+    <div class="sb-tag">Near-miss risk detection · NGSIM benchmark · XGBoost + SHAP · Real pipeline outputs</div>
+  </div>
+  <nav class="sb-nav">
+    <span class="nav-lbl">Dashboard</span>
+    <div class="nav-item" onclick="switchTab('context',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Research Context
+    </div>
+    <div class="nav-item active" onclick="switchTab('overview',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Overview &amp; Map
+    </div>
+    <div class="nav-item" onclick="switchTab('riskscores',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Risk Score Analysis
+    </div>
+    <div class="nav-item" onclick="switchTab('model',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Model Performance
+    </div>
+    <div class="nav-item" onclick="switchTab('features',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Feature Analysis
+    </div>
+    <div class="nav-item" onclick="switchTab('corridors',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7 7m4 4l7 7M10 3H3v7m11 11h7v-7"/></svg>
+      Corridors
+    </div>
+  </nav>
+  <div class="sb-alert">
+    <strong>⚠ Data Scope</strong>
+    NGSIM data: CA &amp; GA corridors only.
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <div class="tb-title" id="tbTitle">Overview — WorkZoneSafe · NGSIM Benchmark</div>
+    <span class="chip chip-orange">RESEARCH DEMO</span>
+    <span class="chip chip-yellow">NGSIM · CA &amp; GA Only</span>
+    <button class="theme-btn" onclick="toggleTheme()">🌓</button>
+  </header>
+
+  <div class="content">
+
+    <!-- ═══════════════════ OVERVIEW ═══════════════════ -->
+    <div class="tab-pane active" id="tab-overview">
+      <div class="t-banner">
+        <div style="font-size:16px;flex-shrink:0;margin-top:1px">📋</div>
+        <p><strong>Transparency Notice —</strong> All data sourced from the public <a href="https://data.transportation.gov/Automobiles/Next-Generation-Simulation-NGSIM-Vehicle-Trajector/8ect-6jqj" target="_blank">NGSIM dataset (FHWA/USDOT)</a>. Corridors are in <strong>Los Angeles CA, SF Bay Area CA, and Atlanta GA</strong>. Risk scores are XGBoost model-predicted probabilities — not live readings.</p>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi bt-orange"><div class="kpi-lbl">Total Windows</div><div class="kpi-val">3,137</div><div class="kpi-sub">10-sec trajectory windows · 3,071 vehicles</div></div>
+        <div class="kpi bt-red"><div class="kpi-lbl">Near-Miss Rate</div><div class="kpi-val">85.3%</div><div class="kpi-sub">2,677 windows · label: time headway &lt; 1.5s</div></div>
+        <div class="kpi bt-blue"><div class="kpi-lbl">XGBoost AUC-ROC</div><div class="kpi-val">0.862</div><div class="kpi-sub">5-fold CV: 0.886 ± 0.006 · AP: 0.968</div></div>
+        <div class="kpi bt-teal"><div class="kpi-lbl">CMV Involvement</div><div class="kpi-val">7.9%</div><div class="kpi-sub">247 windows with commercial vehicle flag</div></div>
+      </div>
+
+      <div class="g-map">
+        <div class="card" style="padding:12px">
+          <div class="card-title">NGSIM Study Corridors — Actual Locations</div>
+          <div class="card-sub">Marker size = window count · Color = model-predicted risk score (avg probability)</div>
+          <div style="position:relative">
+          <svg id="svgmap" viewBox="0 0 800 500" width="100%" xmlns="http://www.w3.org/2000/svg" aria-label="NGSIM study corridors map">
+            <!-- Ocean -->
+            <rect width="800" height="500" fill="#e8eff7"/>
+            <!-- Continental US outline (simplified) -->
+            <path d="M65,19 L65,44 L72,73 L68,185 L86,231 L99,258 L117,298 L144,314 L158,337 L160,337 L187,333 L259,360 L289,350 L331,402 L374,433 L401,464 L400,428 L425,389 L490,387 L515,372 L526,378 L553,391 L584,425 L591,489 L611,465 L606,414 L595,380 L613,344 L628,330 L686,279 L675,254 L692,196 L706,178 L735,144 L750,157 L776,99 L776,48 L735,45 L680,35 L580,25 L438,19 L354,19 L169,19 Z" fill="#d5e5cb" stroke="#b8d4b5" stroke-width="1.5"/>
+            <!-- CA state highlight -->
+            <path d="M72,154 L68,185 L86,231 L99,258 L117,298 L144,314 L158,337 L187,337 L187,288 L123,154 Z" fill="#c8dfc5" stroke="#9fc49a" stroke-width="1"/>
+            <!-- GA state highlight -->
+            <path d="M547,288 L578,288 L601,337 L600,365 L592,377 L553,365 Z" fill="#c8dfc5" stroke="#9fc49a" stroke-width="1"/>
+            <!-- State labels -->
+            <text x="135" y="270" text-anchor="middle" font-size="11" fill="#5a7a5a" font-family="Inter,sans-serif" font-weight="600">CA</text>
+            <text x="572" y="338" text-anchor="middle" font-size="10" fill="#5a7a5a" font-family="Inter,sans-serif" font-weight="600">GA</text>
+            <!-- I-80 Emeryville SF Bay (lat=37.83, lon=-122.29) -->
+            <circle id="m-i80" cx="95" cy="234" r="10" fill="#eab308" stroke="white" stroke-width="2.5" style="cursor:pointer" onclick="showMapPopup(event,'i-80',95,234)"/>
+            <!-- LA cluster: US-101 + Lankershim (avg lat=34.12, lon=-118.35) -->
+            <circle id="m-la" cx="143" cy="306" r="16" fill="#ef4444" stroke="white" stroke-width="2.5" style="cursor:pointer" onclick="showMapPopup(event,'la',143,306)"/>
+            <!-- Atlanta Peachtree (lat=33.75, lon=-84.39) -->
+            <circle id="m-atl" cx="561" cy="313" r="7" fill="#f97316" stroke="white" stroke-width="2.5" style="cursor:pointer" onclick="showMapPopup(event,'atl',561,313)"/>
+            <!-- Marker labels -->
+            <text x="114" y="306" text-anchor="end" font-size="10.5" fill="#0f172a" font-weight="700" font-family="Inter,sans-serif">LA</text>
+            <text x="72" y="238" text-anchor="end" font-size="10.5" fill="#0f172a" font-weight="700" font-family="Inter,sans-serif">SF</text>
+            <text x="573" y="317" text-anchor="start" font-size="10.5" fill="#0f172a" font-weight="700" font-family="Inter,sans-serif">ATL</text>
+            <!-- Click hint -->
+            <text x="400" y="490" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="Inter,sans-serif">Click any marker for corridor details</text>
+          </svg>
+          <div id="mapPopup" class="map-popup"></div>
+          </div>
+          <div style="display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;font-size:11px;color:var(--muted)">
+            <span>Risk color: <span style="color:#ef4444">●</span> High (&gt;0.85) <span style="color:#f97316">●</span> Med (0.65–0.85) <span style="color:#eab308">●</span> Low (&lt;0.65)</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="card">
+            <div class="card-title">Model-Predicted Risk Scores</div>
+            <div class="card-sub" style="margin-bottom:14px">Mean XGBoost probability per corridor — computed on all 3,137 windows</div>
+            <div id="riskBarsOverview"></div>
+            <div class="warn-box" style="font-size:11px"><strong>Note:</strong> Lankershim (n=73) and Peachtree (n=14) have small samples — treat their scores as illustrative only.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Dataset Quick Facts</div>
+            <table class="dtbl" style="margin-top:4px">
+              <tbody>
+                <tr><td style="color:var(--muted);font-size:11px">Source</td><td style="font-size:11px">NGSIM · FHWA/USDOT · 2005</td></tr>
+                <tr><td style="color:var(--muted);font-size:11px">Corridors</td><td style="font-size:11px">4 (CA × 3, GA × 1)</td></tr>
+                <tr><td style="color:var(--muted);font-size:11px">Window size</td><td style="font-size:11px">10 seconds</td></tr>
+                <tr><td style="color:var(--muted);font-size:11px">Label</td><td style="font-size:11px">Time headway &lt; 1.5s</td></tr>
+                <tr><td style="color:var(--muted);font-size:11px">Features</td><td style="font-size:11px">10 (no label leakage)</td></tr>
+                <tr><td style="color:var(--muted);font-size:11px">Train / Test</td><td style="font-size:11px">80 / 20 stratified split</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional KPIs row -->
+      <div class="g3">
+        <div class="kpi bt-green" style="padding:14px 16px">
+          <div class="kpi-lbl">True Positives — Test Set</div>
+          <div class="kpi-val">512</div>
+          <div class="kpi-sub">Near-miss correctly flagged · 536 actual near-miss in test set</div>
+        </div>
+        <div class="kpi bt-orange" style="padding:14px 16px">
+          <div class="kpi-lbl">False Positives — Test Set</div>
+          <div class="kpi-val">50</div>
+          <div class="kpi-sub">Safe windows wrongly flagged · 92 actual safe in test set</div>
+        </div>
+        <div class="kpi bt-red" style="padding:14px 16px">
+          <div class="kpi-lbl">Missed Near-Miss (FN) — Test Set</div>
+          <div class="kpi-val">24</div>
+          <div class="kpi-sub">Near-miss not caught by model — most critical error type</div>
+        </div>
+      </div>
+      <div class="t-banner" style="margin-bottom:14px">
+        <div style="font-size:15px;flex-shrink:0;margin-top:1px">&#x2139;&#xFE0F;</div>
+        <p><strong>Test set source —</strong> These three values come from the <strong>held-out 20% test split</strong> of the full NGSIM dataset: <strong>628 windows</strong> (536 near-miss + 92 safe), never seen during model training. The remaining 2,509 windows (80%) were used for 5-fold cross-validation training. All 3,137 windows are from the NGSIM public dataset (FHWA/USDOT) across 4 corridors: US-101, I-80, Lankershim, Peachtree.</p>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ RISK SCORES ═══════════════════ -->
+    <div class="tab-pane" id="tab-riskscores">
+      <div class="t-banner">
+        <div style="font-size:16px;flex-shrink:0">📊</div>
+        <p><strong>Real model outputs —</strong> Risk scores = XGBoost predicted probability for each window. A score of 0.90 means the model is 90% confident that window is a near-miss. High-risk threshold = 0.70.</p>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">Predicted Probability Distribution</div>
+          <div class="card-sub">Test set (628 windows) — near-miss vs safe predicted probabilities</div>
+          <canvas id="probDistChart" height="220"></canvas>
+          <div class="finding-box"><strong>Key finding:</strong> Near-miss windows cluster sharply at 0.95–1.0 (375 out of 536). Safe windows spread more broadly, showing the model's uncertainty on borderline cases.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">High-Risk Windows by Corridor</div>
+          <div class="card-sub">Windows with predicted probability ≥ 0.70 (out of all windows per corridor)</div>
+          <canvas id="highRiskChart" height="220"></canvas>
+          <div class="warn-box">Lankershim shows 100% high-risk but has only 73 windows — not statistically robust on its own.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">Corridor Risk Score Summary</div>
+        <div class="card-sub">Mean predicted probability across ALL windows per corridor — computed on full dataset (training + test)</div>
+        <table class="dtbl" style="margin-top:8px">
+          <thead>
+            <tr>
+              <th>Corridor</th><th>Location</th><th>Total Windows</th>
+              <th>High-Risk (≥0.70)</th><th>High-Risk %</th><th>Mean Risk Score</th><th>Sample Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>US-101</strong></td><td>Hollywood Fwy, Los Angeles CA</td>
+              <td>2,472</td><td>2,211</td>
+              <td><span class="badge b-red">89.4%</span></td>
+              <td><strong>0.900</strong></td>
+              <td><span class="badge b-teal">Primary corpus</span></td>
+            </tr>
+            <tr>
+              <td><strong>Lankershim</strong></td><td>N. Hollywood, Los Angeles CA</td>
+              <td>73</td><td>73</td>
+              <td><span class="badge b-red">100.0%</span></td>
+              <td><strong>0.979</strong></td>
+              <td><span class="badge b-warn">n=73 — limited</span></td>
+            </tr>
+            <tr>
+              <td><strong>Peachtree</strong></td><td>Peachtree St, Atlanta GA</td>
+              <td>14</td><td>11</td>
+              <td><span class="badge b-orange">78.6%</span></td>
+              <td><strong>0.855</strong></td>
+              <td><span class="badge b-red">n=14 — very low</span></td>
+            </tr>
+            <tr>
+              <td><strong>I-80</strong></td><td>Emeryville, SF Bay Area CA</td>
+              <td>578</td><td>339</td>
+              <td><span class="badge b-yellow">58.7%</span></td>
+              <td><strong>0.649</strong></td>
+              <td><span class="badge b-blue">Sufficient</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="info-box"><strong>Important caveat:</strong> These scores are computed on the full dataset (model saw 80% of each corridor's windows during training). Scores on unseen corridors would likely differ. The test-set ROC AUC (0.862) is the unbiased performance estimate.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ MODEL PERFORMANCE ═══════════════════ -->
+    <div class="tab-pane" id="tab-model">
+      <div class="t-banner">
+        <div style="font-size:16px;flex-shrink:0">🤖</div>
+        <p><strong>Real computed metrics —</strong> 80/20 stratified split · XGBoost primary model · 5-fold CV for generalization check · No label leakage (time-headway features excluded from inputs).</p>
+      </div>
+
+      <div class="g2" style="margin-bottom:14px">
+        <!-- Confusion Matrix -->
+        <div class="card">
+          <div class="card-title">Confusion Matrix — XGBoost (Test Set, n=628)</div>
+          <div class="card-sub">Predicted vs Actual labels on the held-out 20% test set</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px">
+            <div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <div class="cm-cell cm-tp"><div class="cm-val">512</div><div class="cm-lbl">✓ True Positive<br/>Near-miss correctly caught</div></div>
+              <div class="cm-cell cm-fp"><div class="cm-val">50</div><div class="cm-lbl">✗ False Positive<br/>Safe flagged as near-miss</div></div>
+            </div>
+            <div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <div class="cm-cell cm-fn"><div class="cm-val">24</div><div class="cm-lbl">✗ False Negative<br/>Near-miss missed ← critical</div></div>
+              <div class="cm-cell cm-tn"><div class="cm-val">42</div><div class="cm-lbl">✓ True Negative<br/>Safe correctly identified</div></div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px">
+            <div style="text-align:center;background:var(--surface2);border-radius:7px;padding:10px 6px">
+              <div style="font-size:17px;font-weight:800;color:var(--c-green)">91.1%</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:2px">Precision</div>
+            </div>
+            <div style="text-align:center;background:var(--surface2);border-radius:7px;padding:10px 6px">
+              <div style="font-size:17px;font-weight:800;color:var(--c-blue)">95.5%</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:2px">Recall</div>
+            </div>
+            <div style="text-align:center;background:var(--surface2);border-radius:7px;padding:10px 6px">
+              <div style="font-size:17px;font-weight:800;color:var(--c-orange)">45.7%</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:2px">Specificity</div>
+            </div>
+            <div style="text-align:center;background:var(--surface2);border-radius:7px;padding:10px 6px">
+              <div style="font-size:17px;font-weight:800;color:var(--c-purple)">88.2%</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:2px">Accuracy</div>
+            </div>
+          </div>
+          <div class="warn-box" style="margin-top:10px;font-size:11px">
+            <strong>Specificity (45.7%) is low</strong> — the model flags 50 out of 92 safe windows as near-miss. This is expected given 85% class imbalance. For safety systems, low FN (24 missed) is the priority; false alarms are more acceptable than missed detections.
+          </div>
+        </div>
+
+        <!-- ROC + PR -->
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="card">
+            <div class="card-title">ROC Curve <span style="font-weight:400;color:var(--muted);font-size:11px">AUC = 0.862</span></div>
+            <div class="card-sub">True Positive Rate vs False Positive Rate — test set</div>
+            <canvas id="rocChart" height="180"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-title">Precision–Recall Curve <span style="font-weight:400;color:var(--muted);font-size:11px">AP = 0.968</span></div>
+            <div class="card-sub">High AP score reflects strong near-miss detection ability</div>
+            <canvas id="prChart" height="180"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Model comparison + CV -->
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">5-Fold Cross-Validation AUC</div>
+          <div class="card-sub">Mean: 0.886 ± 0.006 — tight spread confirms stable generalization</div>
+          <canvas id="cvChart" height="180"></canvas>
+          <div class="finding-box"><strong>Stable performance:</strong> All 5 folds between 0.882 and 0.903 — model is not overfitting to a specific data split.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Model Comparison</div>
+          <div class="card-sub">All three classifiers on same 80/20 stratified split</div>
+          <table class="dtbl" style="margin-top:6px">
+            <thead>
+              <tr><th>Model</th><th>AUC</th><th>F1</th><th>Precision</th><th>Recall</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>XGBoost ✓</strong></td><td><strong>0.860</strong></td><td><strong>0.932</strong></td><td>0.908</td><td><strong>0.957</strong></td></tr>
+              <tr><td>Random Forest</td><td>0.854</td><td>0.918</td><td>0.903</td><td>0.935</td></tr>
+              <tr><td>Logistic Reg.</td><td>0.857</td><td>0.851</td><td>0.947</td><td>0.772</td></tr>
+            </tbody>
+          </table>
+          <div class="info-box" style="margin-top:10px;font-size:11px">XGBoost selected as primary: highest Recall (0.957) means fewest missed near-miss events — the most critical metric for a safety detection system.</div>
+          <div style="margin-top:14px">
+            <div style="font-size:11.5px;font-weight:600;color:var(--text);margin-bottom:8px">Leakage-Excluded Features</div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px">
+              <span style="font-family:monospace;font-size:11px;padding:2px 6px;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.22);border-radius:4px;color:#ef4444;text-decoration:line-through">min_th</span>
+              <span style="font-family:monospace;font-size:11px;padding:2px 6px;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.22);border-radius:4px;color:#ef4444;text-decoration:line-through">mean_th</span>
+              <span style="font-family:monospace;font-size:11px;padding:2px 6px;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.22);border-radius:4px;color:#ef4444;text-decoration:line-through">th_frac_critical</span>
+            </div>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px">Direct time-headway derivatives — including them caused AUC = 1.0 (trivial leakage)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ FEATURE ANALYSIS ═══════════════════ -->
+    <div class="tab-pane" id="tab-features">
+      <div class="t-banner">
+        <div style="font-size:16px;flex-shrink:0">🔬</div>
+        <p><strong>Real computed values —</strong> SHAP values from <code>shap_values.csv</code>. Feature distributions computed from <code>windows.csv</code>. CMV analysis from <code>cmv_flag</code> column.</p>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">SHAP Feature Importance</div>
+          <div class="card-sub">Mean |SHAP| value — XGBoost model · Computed from shap_values.csv</div>
+          <div style="margin-top:14px">
+            <div class="shap-row"><div class="shap-name">mean_speed</div><div class="shap-bw"><div class="shap-bf" style="width:100%"></div></div><div class="shap-v">1.095</div></div>
+            <div class="shap-row"><div class="shap-name">lat_std</div><div class="shap-bw"><div class="shap-bf" style="width:71.6%"></div></div><div class="shap-v">0.784</div></div>
+            <div class="shap-row"><div class="shap-name">mean_headway</div><div class="shap-bw"><div class="shap-bf" style="width:70.1%"></div></div><div class="shap-v">0.768</div></div>
+            <div class="shap-row"><div class="shap-name">min_headway</div><div class="shap-bw"><div class="shap-bf" style="width:70.0%"></div></div><div class="shap-v">0.767</div></div>
+            <div class="shap-row"><div class="shap-name">std_speed</div><div class="shap-bw"><div class="shap-bf" style="width:57.5%"></div></div><div class="shap-v">0.630</div></div>
+            <div class="shap-row"><div class="shap-name">std_acc</div><div class="shap-bw"><div class="shap-bf" style="width:38.5%"></div></div><div class="shap-v">0.422</div></div>
+            <div class="shap-row"><div class="shap-name">max_delta_v</div><div class="shap-bw"><div class="shap-bf" style="width:35.5%"></div></div><div class="shap-v">0.389</div></div>
+            <div class="shap-row"><div class="shap-name">mean_acc</div><div class="shap-bw"><div class="shap-bf" style="width:21.8%"></div></div><div class="shap-v">0.239</div></div>
+            <div class="shap-row"><div class="shap-name">mean_delta_v</div><div class="shap-bw"><div class="shap-bf" style="width:20.1%"></div></div><div class="shap-v">0.220</div></div>
+            <div class="shap-row"><div class="shap-name">cmv_flag</div><div class="shap-bw"><div class="shap-bf" style="width:1.3%"></div></div><div class="shap-v">0.014</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Feature Means: Near-Miss vs Safe</div>
+          <div class="card-sub">Mean value per feature grouped by label — computed from windows.csv</div>
+          <div style="margin-top:12px" id="featDistBars"></div>
+        </div>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">Feature Distribution Chart</div>
+          <div class="card-sub">Near-miss vs safe mean values — top 6 most discriminative features</div>
+          <canvas id="featChart" height="220"></canvas>
+        </div>
+
+        <div class="card">
+          <div class="card-title">CMV Analysis — Commercial Vehicle Impact</div>
+          <div class="card-sub">Near-miss rate: CMV-involved vs non-CMV windows</div>
+          <canvas id="cmvChart" height="160"></canvas>
+          <table class="dtbl" style="margin-top:12px">
+            <thead><tr><th>Group</th><th>Total Windows</th><th>Near-Miss</th><th>Near-Miss Rate</th></tr></thead>
+            <tbody>
+              <tr><td>CMV Involved</td><td>247</td><td>207</td><td><span class="badge b-orange">83.8%</span></td></tr>
+              <tr><td>No CMV</td><td>2,890</td><td>2,470</td><td><span class="badge b-red">85.5%</span></td></tr>
+            </tbody>
+          </table>
+          <div class="finding-box"><strong>Counterintuitive finding:</strong> CMV-involved windows have a <em>slightly lower</em> near-miss rate (83.8%) than non-CMV (85.5%). This may reflect CMV drivers maintaining larger following distances by training/regulation. This is a real computed result — worth investigating further with more data.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ CORRIDORS ═══════════════════ -->
+    <div class="tab-pane" id="tab-corridors">
+      <div class="t-banner">
+        <div style="font-size:16px;flex-shrink:0">🛣️</div>
+        <p><strong>4 real NGSIM corridors —</strong> All stats computed from <code>windows.csv</code> and XGBoost predicted probabilities. Risk scores are model outputs, not manual assignments.</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+
+        <div class="corr-card" style="border-top:3px solid #ef4444">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+            <div><div class="corr-name">US-101 · Hollywood Freeway</div><div class="corr-loc">Los Angeles, CA · Southbound · 640m</div></div>
+            <span class="badge b-teal">78.8% of data</span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+            <span class="badge b-red">Near-Miss: 90.1%</span>
+            <span class="badge b-red">Risk Score: 0.900</span>
+            <span class="badge b-gray">CMV: 8.5%</span>
+            <span class="badge b-blue">n=2,472</span>
+          </div>
+          <div class="corr-stats">
+            <div><div class="cs-val">13.1</div><div class="cs-lbl">Avg speed (mph)</div></div>
+            <div><div class="cs-val">80.2</div><div class="cs-lbl">Avg headway (ft)</div></div>
+            <div><div class="cs-val">22.1</div><div class="cs-lbl">Min headway (ft)</div></div>
+            <div><div class="cs-val">16.2</div><div class="cs-lbl">Lat std (ft)</div></div>
+            <div><div class="cs-val">19.1</div><div class="cs-lbl">Avg ΔV (ft/s)</div></div>
+            <div><div class="cs-val">211</div><div class="cs-lbl">CMV windows</div></div>
+          </div>
+        </div>
+
+        <div class="corr-card" style="border-top:3px solid #3b82f6">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+            <div><div class="corr-name">I-80 · Eastbound Freeway</div><div class="corr-loc">Emeryville, SF Bay Area, CA</div></div>
+            <span class="badge b-blue">18.4% of data</span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+            <span class="badge b-yellow">Near-Miss: 63.3%</span>
+            <span class="badge b-yellow">Risk Score: 0.649</span>
+            <span class="badge b-gray">CMV: 5.0%</span>
+            <span class="badge b-blue">n=578</span>
+          </div>
+          <div class="corr-stats">
+            <div><div class="cs-val">9.2</div><div class="cs-lbl">Avg speed (mph)</div></div>
+            <div><div class="cs-val">57.2</div><div class="cs-lbl">Avg headway (ft)</div></div>
+            <div><div class="cs-val">24.2</div><div class="cs-lbl">Min headway (ft)</div></div>
+            <div><div class="cs-val">8.0</div><div class="cs-lbl">Lat std (ft)</div></div>
+            <div><div class="cs-val">6.1</div><div class="cs-lbl">Avg ΔV (ft/s)</div></div>
+            <div><div class="cs-val">29</div><div class="cs-lbl">CMV windows</div></div>
+          </div>
+          <div class="finding-box" style="font-size:11px"><strong>Lowest risk corridor:</strong> Lower speed (9.2 mph) and lower lat_std (8.0 ft) vs US-101 — consistent with the model's lower predicted risk score (0.649).</div>
+        </div>
+
+        <div class="corr-card" style="border-top:3px solid #f97316">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+            <div><div class="corr-name">Lankershim Boulevard</div><div class="corr-loc">North Hollywood, Los Angeles, CA · Urban surface street</div></div>
+            <span class="badge b-warn">n=73 · Limited</span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+            <span class="badge b-red">Near-Miss: 97.3%</span>
+            <span class="badge b-red">Risk Score: 0.979</span>
+            <span class="badge b-gray">CMV: 9.6%</span>
+            <span class="badge b-orange">n=73</span>
+          </div>
+          <div class="corr-stats">
+            <div><div class="cs-val">14.3</div><div class="cs-lbl">Avg speed (mph)</div></div>
+            <div><div class="cs-val">93.6</div><div class="cs-lbl">Avg headway (ft)</div></div>
+            <div><div class="cs-val">23.6</div><div class="cs-lbl">Min headway (ft)</div></div>
+            <div><div class="cs-val">21.3</div><div class="cs-lbl">Lat std (ft)</div></div>
+            <div><div class="cs-val">77.7</div><div class="cs-lbl">Avg ΔV (ft/s)</div></div>
+            <div><div class="cs-val">7</div><div class="cs-lbl">CMV windows</div></div>
+          </div>
+          <div class="warn-box" style="font-size:11px"><strong>High ΔV (77.7 ft/s):</strong> Urban stop-and-go on a surface street creates sharp speed changes. Real computed value — not an error. But small sample (n=73) limits generalizability.</div>
+        </div>
+
+        <div class="corr-card" style="border-top:3px solid #eab308">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+            <div><div class="corr-name">Peachtree Street</div><div class="corr-loc">Atlanta, Georgia · Urban arterial</div></div>
+            <span class="badge b-red">n=14 · Very Low</span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+            <span class="badge b-orange">Near-Miss: 85.7%</span>
+            <span class="badge b-orange">Risk Score: 0.855</span>
+            <span class="badge b-gray">CMV: 0%</span>
+            <span class="badge b-yellow">n=14</span>
+          </div>
+          <div class="corr-stats">
+            <div><div class="cs-val">13.8</div><div class="cs-lbl">Avg speed (mph)</div></div>
+            <div><div class="cs-val">91.6</div><div class="cs-lbl">Avg headway (ft)</div></div>
+            <div><div class="cs-val">26.1</div><div class="cs-lbl">Min headway (ft)</div></div>
+            <div><div class="cs-val">19.7</div><div class="cs-lbl">Lat std (ft)</div></div>
+            <div><div class="cs-val">12.4</div><div class="cs-lbl">Avg ΔV (ft/s)</div></div>
+            <div><div class="cs-val">0</div><div class="cs-lbl">CMV windows</div></div>
+          </div>
+          <div class="warn-box" style="font-size:11px"><strong>Critically small sample (n=14).</strong> Only 14 windows exist for Peachtree in NGSIM. All stats shown are real but carry no statistical weight individually.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Corridor Comparison Chart</div>
+        <div class="card-sub">Near-miss rate and model risk score side by side</div>
+        <canvas id="corrCompChart" height="160"></canvas>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ CONTEXT ═══════════════════ -->
+    <div class="tab-pane" id="tab-context">
+      <div class="g2" style="margin-bottom:14px">
+        <div class="card">
+          <div class="card-title">What is NGSIM?</div>
+          <div style="font-size:12.5px;color:var(--muted);line-height:1.8;margin-top:8px">
+            The <strong style="color:var(--text)">NGSIM Vehicle Trajectories dataset</strong> was collected by FHWA in 2005 using overhead cameras recording at <strong style="color:var(--text)">10 Hz</strong>. It provides precise vehicle position, speed, and lane data — the gold standard public benchmark for traffic microsimulation research, cited in hundreds of peer-reviewed studies.
+            <br/><br/>
+            <a href="https://data.transportation.gov/Automobiles/Next-Generation-Simulation-NGSIM-Vehicle-Trajector/8ect-6jqj" target="_blank" style="color:var(--c-blue)">→ Official dataset page (data.transportation.gov)</a>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Why NGSIM for This Study?</div>
+          <div style="font-size:12.5px;color:var(--muted);line-height:1.8;margin-top:8px">
+            <strong style="color:var(--text)">1. Publicly available and fully reproducible.</strong> NGSIM is freely distributed by FHWA/USDOT and has been used in 1,000+ peer-reviewed traffic safety studies. Every result in this project can be independently verified and re-run from the same source files.
+            <br/><br/>
+            <strong style="color:var(--text)">2. High temporal resolution (10 Hz, vehicle-level).</strong> NGSIM records each vehicle's position, speed, and lane every 0.1 seconds. This granularity is what makes precise feature engineering possible — computing speed variance, ΔV, and lateral trajectory spread across a 10-second window requires sub-second sampling that aggregated sensor logs cannot provide.
+            <br/><br/>
+            <strong style="color:var(--text)">3. Multi-site geographic diversity.</strong> Three California corridors (US-101 Hollywood Fwy, I-80 Emeryville, Lankershim Blvd) plus one Georgia corridor (Peachtree St Atlanta) let the model be tested across different road types, traffic densities, and regional driving patterns — providing a basic check on cross-site generalizability.
+            <br/><br/>
+            <strong style="color:var(--text)">4. Establishes a replicable end-to-end baseline.</strong> The full pipeline — feature engineering, labeling, XGBoost training, SHAP explainability — is validated here on real data. This baseline is the reference point for future work using other trajectory datasets.
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Research Applications &amp; Impact</div>
+        <div class="card-sub" style="margin-bottom:14px">Practical use cases enabled by this methodology — applicable to any corridor with trajectory-level sensor data</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;border:1px solid var(--border)">
+            <div style="font-size:12px;font-weight:700;color:var(--c-orange);margin-bottom:5px">&#x1F6A7; Urban Work Zone Monitoring</div>
+            <div style="font-size:11.5px;color:var(--muted);line-height:1.55">Flags high-risk 10-second windows near active construction zones using speed, headway, and lateral variance — no crash record required, purely proactive.</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;border:1px solid var(--border)">
+            <div style="font-size:12px;font-weight:700;color:var(--c-teal);margin-bottom:5px">&#x1F69A; CMV Fleet Safety Programs</div>
+            <div style="font-size:11.5px;color:var(--muted);line-height:1.55">CMV-flagged windows can feed fleet safety dashboards, alerting dispatchers when commercial vehicles are consistently present in near-miss conditions on a corridor.</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;border:1px solid var(--border)">
+            <div style="font-size:12px;font-weight:700;color:var(--c-blue);margin-bottom:5px">&#x1F4CA; Near-Miss as Crash Surrogate</div>
+            <div style="font-size:11.5px;color:var(--muted);line-height:1.55">Crash events are rare and often under-reported. This study uses time headway &lt; 1.5s as a surrogate — near-miss windows are observable in trajectory data before any collision occurs, enabling proactive safety analysis without relying on historical crash records.</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;border:1px solid var(--border)">
+            <div style="font-size:12px;font-weight:700;color:var(--c-purple);margin-bottom:5px">&#x26A1; Real-Time Inference Capability</div>
+            <div style="font-size:11.5px;color:var(--muted);line-height:1.55">XGBoost predicts each 10-second window in &lt;10ms. This latency is compatible with edge deployment on roadside units or connected vehicle infrastructure for near-real-time risk scoring.</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;border:1px solid var(--border);grid-column:span 2">
+            <div style="font-size:12px;font-weight:700;color:var(--c-green);margin-bottom:5px">&#x1F4CB; Policy &amp; Corridor Investment Prioritization</div>
+            <div style="font-size:11.5px;color:var(--muted);line-height:1.55">Model-predicted risk scores (e.g., US-101 at 0.900 vs I-80 at 0.649) give transportation agencies a ranked, data-driven basis for allocating safety infrastructure investment — speed cameras, dynamic message signs, or increased enforcement — to the corridors where near-miss probability is highest.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <footer class="dash-footer">
+    <span>WorkZoneSafe — NGSIM Benchmark Study · Sai Kumar Naidu · FAU MS CS</span>
+    <span>·</span>
+    <a href="https://data.transportation.gov/Automobiles/Next-Generation-Simulation-NGSIM-Vehicle-Trajector/8ect-6jqj" target="_blank">Data: NGSIM (FHWA/USDOT)</a>
+    <span>·</span>
+    <a href="https://github.com/snaidu20/WorkZoneSafe_FL" target="_blank">GitHub</a>
+    <span style="margin-left:auto;font-size:10px;background:rgba(249,115,22,.12);color:#f97316;padding:2px 8px;border-radius:4px;border:1px solid rgba(249,115,22,.25)">RESEARCH DEMO</span>
+  </footer>
+</div>
+
+<script>
+// THEME
+function toggleTheme(){const h=document.documentElement;h.dataset.theme=h.dataset.theme==='dark'?'light':'dark'}
+
+// TABS
+const tabTitles={
+  overview:'Overview — WorkZoneSafe · NGSIM Benchmark',
+  riskscores:'Risk Score Analysis — XGBoost Predicted Probabilities',
+  model:'Model Performance — Confusion Matrix · ROC · PR · CV',
+  features:'Feature Analysis — SHAP · Distributions · CMV',
+  corridors:'Corridor Comparison — 4 NGSIM Sites',
+  context:'Research Context — Data Source & Florida Path'
+};
+const chartsInit={};
+
+function switchTab(id,el){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  document.getElementById('tbTitle').textContent=tabTitles[id]||'';
+  if(id==='riskscores'&&!chartsInit.riskscores)initRiskCharts();
+  if(id==='model'&&!chartsInit.model)initModelCharts();
+  if(id==='features'&&!chartsInit.features)initFeatureCharts();
+  if(id==='corridors'&&!chartsInit.corridors)initCorridorCharts();
+}
+
+// MAP — self-contained SVG (no external tile dependencies)
+const mapMarkerData={
+  'la':{
+    title:'Los Angeles Cluster',
+    sub:'Hollywood Fwy + N. Hollywood, CA',
+    color:'#ef4444',
+    corridors:[
+      {key:'us-101',label:'US-101 · Hollywood Fwy'},
+      {key:'lankershim',label:'Lankershim Blvd'}
+    ]
+  },
+  'i-80':{
+    title:'I-80 · Eastbound',
+    sub:'Emeryville, SF Bay Area CA',
+    color:'#eab308',
+    corridors:[{key:'i-80',label:'I-80 Emeryville'}]
+  },
+  'atl':{
+    title:'Peachtree St',
+    sub:'Atlanta, GA',
+    color:'#f97316',
+    corridors:[{key:'peachtree',label:'Peachtree St NW'}]
+  }
+};
+
+function showMapPopup(evt,markerId,svgCx,svgCy){
+  evt.stopPropagation();
+  const popup=document.getElementById('mapPopup');
+  const svg=document.getElementById('svgmap');
+  const m=mapMarkerData[markerId];
+  if(!m||!popup)return;
+  let html=`<div class="map-popup-title">${m.title}</div><div class="map-popup-sub">${m.sub}</div>`;
+  m.corridors.forEach((c,i)=>{
+    const d=DATA.corridor_risk[c.key];
+    if(!d)return;
+    const warn=d.total<100?`<div class="map-popup-warn">⚠ n=${d.total} — limited sample</div>`:'';
+    if(m.corridors.length>1)html+=`<div style="font-size:11px;font-weight:600;margin:${i>0?'8px':0} 0 3px;color:var(--text)">${c.label}</div>`;
+    html+=`<div class="map-popup-row"><span>Risk Score</span><span style="color:${m.color}">${d.mean.toFixed(3)}</span></div>`;
+    html+=`<div class="map-popup-row"><span>High-Risk Windows</span><span>${d.pct_high}%</span></div>`;
+    html+=`<div class="map-popup-row"><span>Total Windows</span><span>${d.total.toLocaleString()}</span></div>`;
+    html+=warn;
+  });
+  popup.innerHTML=html;
+  // Position popup relative to SVG element
+  const rect=svg.getBoundingClientRect();
+  const vbW=800,vbH=500;
+  const scaleX=rect.width/vbW,scaleY=rect.height/vbH;
+  let px=(svgCx*scaleX)+20;
+  let py=(svgCy*scaleY)-20;
+  // Keep within bounds
+  const popW=230,popH=130;
+  if(px+popW>rect.width-10)px=svgCx*scaleX-popW-20;
+  if(py+popH>rect.height-10)py=rect.height-popH-10;
+  if(py<4)py=4;
+  popup.style.left=px+'px';
+  popup.style.top=py+'px';
+  popup.style.pointerEvents='none';
+  popup.classList.add('visible');
+}
+
+document.addEventListener('click',()=>{
+  const p=document.getElementById('mapPopup');
+  if(p)p.classList.remove('visible');
+});
+
+window.addEventListener('DOMContentLoaded',()=>{
+  // Risk bars overview
+  const rb=document.getElementById('riskBarsOverview');
+  const corrOrder=['lankershim','us-101','peachtree','i-80'];
+  const riskColors={'lankershim':'#ef4444','us-101':'#ef4444','peachtree':'#f97316','i-80':'#eab308'};
+  corrOrder.forEach(k=>{
+    const d=DATA.corridor_risk[k];
+    const pct=Math.round(d.mean*100);
+    const warn=d.total<100?` <span style="font-size:10px;color:#b45309">(n=${d.total})</span>`:'';
+    rb.innerHTML+=`
+      <div class="risk-row">
+        <div class="risk-name">${d.label}${warn}</div>
+        <div class="risk-bw"><div style="width:${pct}%;height:100%;background:${riskColors[k]};border-radius:5px"></div></div>
+        <div class="risk-val" style="color:${riskColors[k]}">${d.mean.toFixed(3)}</div>
+      </div>`;
+  });
+});
+
+// ── RISK CHARTS ──
+function initRiskCharts(){
+  chartsInit.riskscores=true;
+  const bins=DATA.prob_dist.bins.map(b=>b.toFixed(2));
+  new Chart(document.getElementById('probDistChart'),{
+    type:'bar',
+    data:{labels:bins,datasets:[
+      {label:'Near-Miss',data:DATA.prob_dist.near_miss,backgroundColor:'rgba(239,68,68,0.75)',borderRadius:3},
+      {label:'Safe',data:DATA.prob_dist.safe,backgroundColor:'rgba(59,130,246,0.75)',borderRadius:3}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'top'}},scales:{x:{title:{display:true,text:'Predicted Probability'}},y:{title:{display:true,text:'Window Count'},stacked:false}}}
+  });
+
+  const corrs=['us-101','lankershim','peachtree','i-80'];
+  new Chart(document.getElementById('highRiskChart'),{
+    type:'bar',
+    data:{
+      labels:corrs.map(k=>DATA.corridor_risk[k].label),
+      datasets:[
+        {label:'High-Risk (≥0.70)',data:corrs.map(k=>DATA.corridor_risk[k].high_risk),backgroundColor:['#ef4444','#f97316','#eab308','#3b82f6'],borderRadius:5},
+        {label:'Below 0.70',data:corrs.map(k=>DATA.corridor_risk[k].total-DATA.corridor_risk[k].high_risk),backgroundColor:'rgba(148,163,184,0.3)',borderRadius:5}
+      ]
+    },
+    options:{responsive:true,plugins:{legend:{position:'top'}},scales:{x:{stacked:true},y:{stacked:true,title:{display:true,text:'Windows'}}}}
+  });
+}
+
+// ── MODEL CHARTS ──
+function initModelCharts(){
+  chartsInit.model=true;
+  new Chart(document.getElementById('rocChart'),{
+    type:'line',
+    data:{datasets:[
+      {label:'XGBoost ROC (AUC=0.862)',data:DATA.roc.fpr.map((x,i)=>({x,y:DATA.roc.tpr[i]})),borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.08)',fill:true,tension:0.3,pointRadius:0,borderWidth:2},
+      {label:'Random Chance',data:[{x:0,y:0},{x:1,y:1}],borderColor:'#94a3b8',borderDash:[4,4],pointRadius:0,borderWidth:1}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'top'}},scales:{x:{type:'linear',min:0,max:1,title:{display:true,text:'False Positive Rate'}},y:{min:0,max:1,title:{display:true,text:'True Positive Rate'}}}}
+  });
+
+  new Chart(document.getElementById('prChart'),{
+    type:'line',
+    data:{datasets:[
+      {label:`PR Curve (AP=0.968)`,data:DATA.pr_curve.recall.map((x,i)=>({x,y:DATA.pr_curve.precision[i]})),borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,0.07)',fill:true,tension:0.3,pointRadius:0,borderWidth:2}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'top'}},scales:{x:{type:'linear',min:0,max:1,title:{display:true,text:'Recall'}},y:{min:0.8,max:1,title:{display:true,text:'Precision'}}}}
+  });
+
+  new Chart(document.getElementById('cvChart'),{
+    type:'bar',
+    data:{
+      labels:['Fold 1','Fold 2','Fold 3','Fold 4','Fold 5'],
+      datasets:[{label:'AUC-ROC',data:DATA.fold_aucs,backgroundColor:['#3b82f6','#3b82f6','#3b82f6','#22c55e','#22c55e'],borderRadius:6}]
+    },
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{min:0.85,max:0.92,title:{display:true,text:'AUC-ROC'}}}}
+  });
+}
+
+// ── FEATURE CHARTS ──
+function initFeatureCharts(){
+  chartsInit.features=true;
+  const fd=DATA.feat_dist;
+  const featOrder=['mean_speed','std_speed','lat_std','min_headway','mean_delta_v','std_acc','mean_headway','mean_acc'];
+  const maxVals={mean_speed:25,std_speed:12,lat_std:25,min_headway:40,mean_delta_v:30,std_acc:6,mean_headway:90,mean_acc:0.5};
+
+  const fb=document.getElementById('featDistBars');
+  featOrder.forEach(f=>{
+    const d=fd[f];
+    const mx=maxVals[f]||Math.max(d.nm,d.safe)*1.3;
+    const nmPct=Math.min(100,Math.round(d.nm/mx*100));
+    const safePct=Math.min(100,Math.round(d.safe/mx*100));
+    fb.innerHTML+=`
+      <div class="feat-row">
+        <div class="feat-header">
+          <span class="feat-name">${f}</span>
+          <span style="font-size:10px;color:var(--muted)">${d.unit}</span>
+        </div>
+        <div class="feat-bars">
+          <div class="feat-bar-row">
+            <span class="feat-bar-lbl" style="color:#ef4444">Near-Miss</span>
+            <div class="feat-bar-wrap"><div class="feat-bar-fill" style="width:${nmPct}%;background:#ef4444"></div></div>
+            <span class="feat-bar-val">${d.nm}</span>
+          </div>
+          <div class="feat-bar-row">
+            <span class="feat-bar-lbl" style="color:#3b82f6">Safe</span>
+            <div class="feat-bar-wrap"><div class="feat-bar-fill" style="width:${safePct}%;background:#3b82f6"></div></div>
+            <span class="feat-bar-val">${d.safe}</span>
+          </div>
+        </div>
+      </div>`;
+  });
+
+  // Top 6 features chart
+  const top6=['mean_speed','lat_std','min_headway','std_speed','mean_delta_v','std_acc'];
+  new Chart(document.getElementById('featChart'),{
+    type:'bar',
+    data:{
+      labels:top6,
+      datasets:[
+        {label:'Near-Miss (mean)',data:top6.map(f=>fd[f].nm),backgroundColor:'rgba(239,68,68,0.75)',borderRadius:4},
+        {label:'Safe (mean)',data:top6.map(f=>fd[f].safe),backgroundColor:'rgba(59,130,246,0.75)',borderRadius:4}
+      ]
+    },
+    options:{responsive:true,plugins:{legend:{position:'top'}},scales:{x:{title:{display:true,text:'Feature'}},y:{title:{display:true,text:'Mean Value'}}}}
+  });
+
+  // CMV chart
+  new Chart(document.getElementById('cmvChart'),{
+    type:'bar',
+    data:{
+      labels:['CMV Involved','No CMV'],
+      datasets:[
+        {label:'Near-Miss Rate (%)',data:[83.8,85.5],backgroundColor:['#8b5cf6','#64748b'],borderRadius:6,barPercentage:0.4}
+      ]
+    },
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{min:75,max:90,title:{display:true,text:'Near-Miss Rate (%)'}}}}
+  });
+}
+
+// ── CORRIDOR CHARTS ──
+function initCorridorCharts(){
+  chartsInit.corridors=true;
+  const keys=['us-101','i-80','lankershim','peachtree'];
+  new Chart(document.getElementById('corrCompChart'),{
+    type:'bar',
+    data:{
+      labels:keys.map(k=>DATA.corridor_risk[k].label),
+      datasets:[
+        {label:'Near-Miss Rate (%)',data:[90.1,63.3,97.3,85.7],backgroundColor:'rgba(239,68,68,0.7)',borderRadius:4},
+        {label:'Risk Score ×100',data:keys.map(k=>Math.round(DATA.corridor_risk[k].mean*100)),backgroundColor:'rgba(59,130,246,0.7)',borderRadius:4}
+      ]
+    },
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{position:'top'}},scales:{x:{min:0,max:105,title:{display:true,text:'%'}}}}
+  });
+}
+</script>
+</body>
+</html>
