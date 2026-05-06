@@ -376,6 +376,52 @@ const DATA = {
         <div style="font-size:15px;flex-shrink:0;margin-top:1px">&#x2139;&#xFE0F;</div>
         <p><strong>Test set source —</strong> These three values come from the <strong>held-out 20% test split</strong> of the full NGSIM dataset: <strong>1,905 windows</strong> (1,241 near-miss + 664 safe), never seen during model training. The remaining 7,619 windows (80%) were used for 5-fold cross-validation training. All 9,524 windows are from the NGSIM public dataset (FHWA/USDOT) across 4 corridors: US-101, I-80, Lankershim, Peachtree.</p>
       </div>
+
+      <!-- Test set explainer note -->
+      <div class="card" style="margin-bottom:18px;border-left:3px solid var(--teal)">
+        <div class="card-title" style="font-size:13px;margin-bottom:10px">&#x1F4D6; How to read these three numbers</div>
+
+        <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:12px">
+          The model was trained on <strong style="color:var(--text)">7,619 windows (80%)</strong> and then tested on the remaining <strong style="color:var(--text)">1,905 windows (20%)</strong> it had never seen. For each of those 1,905 windows, the model predicted either <em>near-miss</em> or <em>safe</em> — and that prediction was compared against the actual label. There are exactly four possible outcomes:
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+          <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:6px;padding:10px 12px">
+            <div style="font-size:11px;font-weight:700;color:#16a34a;margin-bottom:4px">✅ True Positive — 1,100</div>
+            <div style="font-size:11px;color:var(--muted);line-height:1.6">Window was <strong style="color:var(--text)">actually near-miss</strong> and model said near-miss. Correct catch. Out of 1,241 real near-misses in the test set.</div>
+          </div>
+          <div style="background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.25);border-radius:6px;padding:10px 12px">
+            <div style="font-size:11px;font-weight:700;color:#ea580c;margin-bottom:4px">⚠️ False Positive — 259</div>
+            <div style="font-size:11px;color:var(--muted);line-height:1.6">Window was <strong style="color:var(--text)">actually safe</strong> but model raised an alarm. False alarm. Out of 664 actual safe windows in the test set.</div>
+          </div>
+          <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:6px;padding:10px 12px">
+            <div style="font-size:11px;font-weight:700;color:#dc2626;margin-bottom:4px">❌ False Negative (FN) — 141 ← most critical</div>
+            <div style="font-size:11px;color:var(--muted);line-height:1.6">Window was <strong style="color:var(--text)">actually near-miss</strong> but model said safe. A real danger event the model missed. Out of 1,241 actual near-misses.</div>
+          </div>
+          <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:6px;padding:10px 12px">
+            <div style="font-size:11px;font-weight:700;color:#2563eb;margin-bottom:4px">✅ True Negative — 405</div>
+            <div style="font-size:11px;color:var(--muted);line-height:1.6">Window was <strong style="color:var(--text)">actually safe</strong> and model said safe. Correctly cleared. Out of 664 actual safe windows.</div>
+          </div>
+        </div>
+
+        <div style="font-size:11.5px;color:var(--muted);line-height:1.7;margin-bottom:10px">
+          <strong style="color:var(--text)">Sanity check:</strong> 1,100 + 141 + 259 + 405 = <strong style="color:var(--teal)">1,905 total test windows</strong> ✅
+        </div>
+
+        <div style="background:var(--surface2);border-radius:6px;padding:10px 14px;font-size:11.5px;line-height:1.8">
+          <div style="font-weight:700;color:var(--text);margin-bottom:6px">How the metrics are derived from these four numbers:</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px">
+            <div><span style="color:var(--c-green);font-weight:700">Recall 88.6%</span> &nbsp;= 1,100 ÷ 1,241 &nbsp;<span style="color:var(--muted);font-size:10.5px">(TP ÷ all actual near-miss — catch rate)</span></div>
+            <div><span style="color:var(--c-green);font-weight:700">Precision 80.9%</span> = 1,100 ÷ 1,359 &nbsp;<span style="color:var(--muted);font-size:10.5px">(TP ÷ all flagged — alarm accuracy)</span></div>
+            <div><span style="color:var(--c-orange);font-weight:700">Specificity 61.0%</span> = 405 ÷ 664 &nbsp;&nbsp;&nbsp;<span style="color:var(--muted);font-size:10.5px">(TN ÷ all actual safe — safe correctly cleared)</span></div>
+            <div><span style="color:var(--c-purple);font-weight:700">Accuracy 79.0%</span> &nbsp;= 1,505 ÷ 1,905 <span style="color:var(--muted);font-size:10.5px">((TP+TN) ÷ total)</span></div>
+          </div>
+        </div>
+
+        <div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.65;border-top:1px solid var(--border);padding-top:9px">
+          <strong style="color:var(--text)">Why FN=141 matters most:</strong> In a safety detection system, missing a real near-miss (FN) is far more consequential than a false alarm (FP). The model missed 141 out of 1,241 near-misses — an 11.4% miss rate. Recall (88.6%) is therefore the primary performance metric for this system, not accuracy.
+        </div>
+      </div>
     </div>
 
     <!-- ═══════════════════ RISK SCORES ═══════════════════ -->
