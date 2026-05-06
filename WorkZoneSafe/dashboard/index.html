@@ -192,7 +192,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 <!-- REAL DATA FROM PIPELINE -->
 <script>
 const DATA = {
-  confusion_matrix: {tn:42,fp:50,fn:24,tp:512},
+  confusion_matrix: {tn:405,fp:259,fn:141,tp:1100},
   roc: {
     fpr:[0.0,0.009,0.0196,0.0301,0.0437,0.0542,0.0663,0.0798,0.0934,0.1099,0.1235,0.137,0.1506,0.1642,0.1747,0.1943,0.2123,0.2289,0.2485,0.2651,0.2846,0.2952,0.3208,0.3404,0.3554,0.375,0.3991,0.4111,0.4413,0.4639,0.4925,0.5452,0.5873,0.625,0.6672,0.7244,0.7636,0.8042,0.8645,1.0],
     tpr:[0.0,0.3272,0.415,0.4384,0.4932,0.5214,0.5455,0.5818,0.6044,0.6438,0.6664,0.6793,0.6986,0.7212,0.7381,0.7494,0.7591,0.7744,0.7945,0.809,0.8187,0.8324,0.8421,0.8533,0.8638,0.8815,0.8912,0.9041,0.9154,0.9267,0.9339,0.9428,0.9533,0.9613,0.9694,0.9758,0.9815,0.9871,0.9944,1.0],
@@ -205,27 +205,27 @@ const DATA = {
   },
   prob_dist: {
     bins:[0.0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95],
-    near_miss:[2,2,2,6,3,0,2,3,3,1,5,4,8,6,7,10,16,21,60,375],
-    safe:[6,3,8,3,4,3,4,0,7,4,3,3,6,2,1,4,5,6,5,15]
+    near_miss:[3,11,16,10,17,11,8,18,20,27,34,29,43,53,52,74,96,108,172,439],
+    safe:[71,57,53,50,32,32,31,31,25,23,29,28,30,32,32,33,25,22,20,8]
   },
   corridor_risk: {
-    'us-101':    {mean:0.900,high_risk:2211,total:2472,pct_high:89.4,label:'US-101 · Los Angeles'},
-    'i-80':      {mean:0.649,high_risk:339, total:578, pct_high:58.7,label:'I-80 · Emeryville'},
-    'lankershim':{mean:0.979,high_risk:73,  total:73,  pct_high:100.0,label:'Lankershim · N. Hollywood'},
-    'peachtree': {mean:0.855,high_risk:11,  total:14,  pct_high:78.6,label:'Peachtree · Atlanta'}
+    'us-101':    {mean:0.724,high_risk:4236,total:6647,pct_high:63.7,label:'US-101 · Los Angeles'},
+    'i-80':      {mean:0.411,high_risk:664, total:2281,pct_high:29.1,label:'I-80 · Emeryville'},
+    'lankershim':{mean:0.821,high_risk:351, total:442, pct_high:79.4, label:'Lankershim · N. Hollywood'},
+    'peachtree': {mean:0.737,high_risk:107, total:154, pct_high:69.5, label:'Peachtree · Atlanta'}
   },
   feat_dist: {
-    mean_speed:  {nm:18.657,safe:15.63, unit:'ft/s'},
-    std_speed:   {nm:8.890, safe:7.002, unit:'ft/s'},
-    lat_std:     {nm:16.218,safe:8.023, unit:'ft'},
-    min_headway: {nm:22.067,safe:31.532,unit:'ft'},
-    mean_delta_v:{nm:19.706,safe:8.100, unit:'ft/s'},
-    std_acc:     {nm:4.986, safe:4.737, unit:'ft/s²'},
-    mean_headway:{nm:76.528,safe:75.096,unit:'ft'},
-    mean_acc:    {nm:0.100, safe:0.115, unit:'ft/s²'},
-    cmv_flag:    {nm:0.077, safe:0.087, unit:'rate'}
+    mean_speed:  {nm:18.531,safe:13.667,unit:'ft/s'},
+    std_speed:   {nm:8.375, safe:6.816, unit:'ft/s'},
+    lat_std:     {nm:13.521,safe:9.028, unit:'ft'},
+    min_headway: {nm:25.896,safe:28.44, unit:'ft'},
+    mean_delta_v:{nm:26.257,safe:17.299,unit:'ft/s'},
+    std_acc:     {nm:4.871, safe:4.392, unit:'ft/s²'},
+    mean_headway:{nm:72.763,safe:69.035,unit:'ft'},
+    mean_acc:    {nm:0.074, safe:0.064, unit:'ft/s²'},
+    cmv_flag:    {nm:0.051, safe:0.066, unit:'rate'}
   },
-  cmv: {cmv_nm_rate:83.8,non_cmv_nm_rate:85.5,cmv_total:247,non_cmv_total:2890,cmv_nm:207,non_cmv_nm:2470},
+  cmv: {cmv_nm_rate:59.0,non_cmv_nm_rate:65.5,cmv_total:537,non_cmv_total:8987,cmv_nm:317,non_cmv_nm:5888},
   fold_aucs:[0.8787,0.8634,0.8626,0.8629,0.8623]
 };
 </script>
@@ -291,7 +291,7 @@ const DATA = {
         <div class="kpi bt-orange"><div class="kpi-lbl">Total Windows</div><div class="kpi-val">9,524</div><div class="kpi-sub">5-sec trajectory windows · 3,206 vehicles</div></div>
         <div class="kpi bt-red"><div class="kpi-lbl">Near-Miss Rate</div><div class="kpi-val">65.2%</div><div class="kpi-sub">6,205 near-miss · 3,319 safe · label: time headway &lt; 1.5s</div></div>
         <div class="kpi bt-blue"><div class="kpi-lbl">XGBoost AUC-ROC</div><div class="kpi-val">0.864</div><div class="kpi-sub">5-fold CV: 0.866 ± 0.006 · AP: 0.924</div></div>
-        <div class="kpi bt-teal"><div class="kpi-lbl">CMV Involvement</div><div class="kpi-val">7.9%</div><div class="kpi-sub">247 windows with commercial vehicle flag</div></div>
+        <div class="kpi bt-teal"><div class="kpi-lbl">CMV Involvement</div><div class="kpi-val">5.6%</div><div class="kpi-sub">537 windows with commercial vehicle flag</div></div>
       </div>
 
       <div class="g-map">
@@ -316,7 +316,7 @@ const DATA = {
             <!-- LA cluster: US-101 + Lankershim (avg lat=34.12, lon=-118.35) -->
             <circle id="m-la" cx="143" cy="306" r="16" fill="#ef4444" stroke="white" stroke-width="2.5" style="cursor:pointer" onclick="showMapPopup(event,'la',143,306)"/>
             <!-- Atlanta Peachtree (lat=33.75, lon=-84.39) -->
-            <circle id="m-atl" cx="561" cy="313" r="7" fill="#f97316" stroke="white" stroke-width="2.5" style="cursor:pointer" onclick="showMapPopup(event,'atl',561,313)"/>
+            <circle id="m-atl" cx="561" cy="313" r="7" fill="#ef4444" stroke="white" stroke-width="2.5" style="cursor:pointer" onclick="showMapPopup(event,'atl',561,313)"/>
             <!-- Marker labels -->
             <text x="114" y="306" text-anchor="end" font-size="10.5" fill="#0f172a" font-weight="700" font-family="Inter,sans-serif">LA</text>
             <text x="72" y="238" text-anchor="end" font-size="10.5" fill="#0f172a" font-weight="700" font-family="Inter,sans-serif">SF</text>
@@ -327,7 +327,7 @@ const DATA = {
           <div id="mapPopup" class="map-popup"></div>
           </div>
           <div style="display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;font-size:11px;color:var(--muted)">
-            <span>Risk color: <span style="color:#ef4444">●</span> High (&gt;0.85) <span style="color:#f97316">●</span> Med (0.65–0.85) <span style="color:#eab308">●</span> Low (&lt;0.65)</span>
+            <span>Risk color: <span style="color:#ef4444">●</span> High (&gt;0.70) <span style="color:#f97316">●</span> Med (0.50–0.70) <span style="color:#eab308">●</span> Low (&lt;0.50)</span>
           </div>
         </div>
 
@@ -336,7 +336,7 @@ const DATA = {
             <div class="card-title">Model-Predicted Risk Scores</div>
             <div class="card-sub" style="margin-bottom:14px">Mean XGBoost probability per corridor — computed on all 9,524 windows</div>
             <div id="riskBarsOverview"></div>
-            <div class="warn-box" style="font-size:11px"><strong>Note:</strong> Lankershim (n=73) and Peachtree (n=14) have small samples — treat their scores as illustrative only.</div>
+            <div class="warn-box" style="font-size:11px"><strong>Note:</strong> US-101 (n=6,647) and I-80 (n=2,281) are the primary data corridors. Lankershim (n=442) and Peachtree (n=154) have smaller samples — scores are real computed values; corridor-level generalization requires caution.</div>
           </div>
           <div class="card">
             <div class="card-title">Dataset Quick Facts</div>
@@ -358,17 +358,17 @@ const DATA = {
       <div class="g3">
         <div class="kpi bt-green" style="padding:14px 16px">
           <div class="kpi-lbl">True Positives — Test Set</div>
-          <div class="kpi-val">512</div>
+          <div class="kpi-val">1,100</div>
           <div class="kpi-sub">Near-miss correctly flagged · 1,241 actual near-miss in test set</div>
         </div>
         <div class="kpi bt-orange" style="padding:14px 16px">
           <div class="kpi-lbl">False Positives — Test Set</div>
-          <div class="kpi-val">50</div>
-          <div class="kpi-sub">Safe windows wrongly flagged · 92 actual safe in test set</div>
+          <div class="kpi-val">259</div>
+          <div class="kpi-sub">Safe windows wrongly flagged · 664 actual safe in test set</div>
         </div>
         <div class="kpi bt-red" style="padding:14px 16px">
           <div class="kpi-lbl">Missed Near-Miss (FN) — Test Set</div>
-          <div class="kpi-val">24</div>
+          <div class="kpi-val">141</div>
           <div class="kpi-sub">Near-miss not caught by model — most critical error type</div>
         </div>
       </div>
@@ -413,31 +413,31 @@ const DATA = {
           <tbody>
             <tr>
               <td><strong>US-101</strong></td><td>Hollywood Fwy, Los Angeles CA</td>
-              <td>2,472</td><td>2,211</td>
-              <td><span class="badge b-red">89.4%</span></td>
-              <td><strong>0.900</strong></td>
+              <td>6,647</td><td>4,236</td>
+              <td><span class="badge b-red">63.7%</span></td>
+              <td><strong>0.724</strong></td>
               <td><span class="badge b-teal">Primary corpus</span></td>
             </tr>
             <tr>
               <td><strong>Lankershim</strong></td><td>N. Hollywood, Los Angeles CA</td>
-              <td>73</td><td>73</td>
-              <td><span class="badge b-red">100.0%</span></td>
-              <td><strong>0.979</strong></td>
-              <td><span class="badge b-warn">n=73 — limited</span></td>
+              <td>442</td><td>351</td>
+              <td><span class="badge b-red">79.4%</span></td>
+              <td><strong>0.821</strong></td>
+              <td><span class="badge b-warn">n=442 — urban surface</span></td>
             </tr>
             <tr>
               <td><strong>Peachtree</strong></td><td>Peachtree St, Atlanta GA</td>
-              <td>14</td><td>11</td>
-              <td><span class="badge b-orange">78.6%</span></td>
-              <td><strong>0.855</strong></td>
-              <td><span class="badge b-red">n=14 — very low</span></td>
+              <td>154</td><td>107</td>
+              <td><span class="badge b-orange">69.5%</span></td>
+              <td><strong>0.737</strong></td>
+              <td><span class="badge b-warn">n=154 — small sample</span></td>
             </tr>
             <tr>
               <td><strong>I-80</strong></td><td>Emeryville, SF Bay Area CA</td>
-              <td>578</td><td>339</td>
-              <td><span class="badge b-yellow">58.7%</span></td>
-              <td><strong>0.649</strong></td>
-              <td><span class="badge b-blue">Sufficient</span></td>
+              <td>2,281</td><td>664</td>
+              <td><span class="badge b-blue">29.1%</span></td>
+              <td><strong>0.411</strong></td>
+              <td><span class="badge b-blue">2,281 windows</span></td>
             </tr>
           </tbody>
         </table>
@@ -459,34 +459,34 @@ const DATA = {
           <div class="card-sub">Predicted vs Actual labels on the held-out 20% test set</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px">
             <div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px">
-              <div class="cm-cell cm-tp"><div class="cm-val">512</div><div class="cm-lbl">✓ True Positive<br/>Near-miss correctly caught</div></div>
-              <div class="cm-cell cm-fp"><div class="cm-val">50</div><div class="cm-lbl">✗ False Positive<br/>Safe flagged as near-miss</div></div>
+              <div class="cm-cell cm-tp"><div class="cm-val">1,100</div><div class="cm-lbl">✓ True Positive<br/>Near-miss correctly caught</div></div>
+              <div class="cm-cell cm-fp"><div class="cm-val">259</div><div class="cm-lbl">✗ False Positive<br/>Safe flagged as near-miss</div></div>
             </div>
             <div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px">
-              <div class="cm-cell cm-fn"><div class="cm-val">24</div><div class="cm-lbl">✗ False Negative<br/>Near-miss missed ← critical</div></div>
-              <div class="cm-cell cm-tn"><div class="cm-val">42</div><div class="cm-lbl">✓ True Negative<br/>Safe correctly identified</div></div>
+              <div class="cm-cell cm-fn"><div class="cm-val">141</div><div class="cm-lbl">✗ False Negative<br/>Near-miss missed ← critical</div></div>
+              <div class="cm-cell cm-tn"><div class="cm-val">405</div><div class="cm-lbl">✓ True Negative<br/>Safe correctly identified</div></div>
             </div>
           </div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px">
             <div style="text-align:center;background:var(--surface2);border-radius:7px;padding:10px 6px">
-              <div style="font-size:17px;font-weight:800;color:var(--c-green)">91.1%</div>
+              <div style="font-size:17px;font-weight:800;color:var(--c-green)">80.9%</div>
               <div style="font-size:10px;color:var(--muted);margin-top:2px">Precision</div>
             </div>
             <div style="text-align:center;background:var(--surface2);border-radius:7px;padding:10px 6px">
-              <div style="font-size:17px;font-weight:800;color:var(--c-blue)">95.5%</div>
+              <div style="font-size:17px;font-weight:800;color:var(--c-blue)">88.6%</div>
               <div style="font-size:10px;color:var(--muted);margin-top:2px">Recall</div>
             </div>
             <div style="text-align:center;background:var(--surface2);border-radius:7px;padding:10px 6px">
-              <div style="font-size:17px;font-weight:800;color:var(--c-orange)">45.7%</div>
+              <div style="font-size:17px;font-weight:800;color:var(--c-orange)">61.0%</div>
               <div style="font-size:10px;color:var(--muted);margin-top:2px">Specificity</div>
             </div>
             <div style="text-align:center;background:var(--surface2);border-radius:7px;padding:10px 6px">
-              <div style="font-size:17px;font-weight:800;color:var(--c-purple)">88.2%</div>
+              <div style="font-size:17px;font-weight:800;color:var(--c-purple)">79.0%</div>
               <div style="font-size:10px;color:var(--muted);margin-top:2px">Accuracy</div>
             </div>
           </div>
           <div class="warn-box" style="margin-top:10px;font-size:11px">
-            <strong>Specificity (45.7%) is low</strong> — the model flags 50 out of 92 safe windows as near-miss. This is expected given 85% class imbalance. For safety systems, low FN (24 missed) is the priority; false alarms are more acceptable than missed detections.
+            <strong>Specificity (61.0%)</strong> — the model flags 259 out of 664 safe windows as near-miss. Given 65% near-miss class imbalance, some false positives are expected. For safety systems, low FN (141 missed out of 1,241) is the priority; false alarms are more acceptable than missed detections.
           </div>
         </div>
 
@@ -552,16 +552,16 @@ const DATA = {
           <div class="card-title">SHAP Feature Importance</div>
           <div class="card-sub">Mean |SHAP| value — XGBoost model · Computed from shap_values.csv</div>
           <div style="margin-top:14px">
-            <div class="shap-row"><div class="shap-name">mean_speed</div><div class="shap-bw"><div class="shap-bf" style="width:100%"></div></div><div class="shap-v">1.095</div></div>
-            <div class="shap-row"><div class="shap-name">lat_std</div><div class="shap-bw"><div class="shap-bf" style="width:71.6%"></div></div><div class="shap-v">0.784</div></div>
-            <div class="shap-row"><div class="shap-name">mean_headway</div><div class="shap-bw"><div class="shap-bf" style="width:70.1%"></div></div><div class="shap-v">0.768</div></div>
-            <div class="shap-row"><div class="shap-name">min_headway</div><div class="shap-bw"><div class="shap-bf" style="width:70.0%"></div></div><div class="shap-v">0.767</div></div>
-            <div class="shap-row"><div class="shap-name">std_speed</div><div class="shap-bw"><div class="shap-bf" style="width:57.5%"></div></div><div class="shap-v">0.630</div></div>
-            <div class="shap-row"><div class="shap-name">std_acc</div><div class="shap-bw"><div class="shap-bf" style="width:38.5%"></div></div><div class="shap-v">0.422</div></div>
-            <div class="shap-row"><div class="shap-name">max_delta_v</div><div class="shap-bw"><div class="shap-bf" style="width:35.5%"></div></div><div class="shap-v">0.389</div></div>
-            <div class="shap-row"><div class="shap-name">mean_acc</div><div class="shap-bw"><div class="shap-bf" style="width:21.8%"></div></div><div class="shap-v">0.239</div></div>
-            <div class="shap-row"><div class="shap-name">mean_delta_v</div><div class="shap-bw"><div class="shap-bf" style="width:20.1%"></div></div><div class="shap-v">0.220</div></div>
-            <div class="shap-row"><div class="shap-name">cmv_flag</div><div class="shap-bw"><div class="shap-bf" style="width:1.3%"></div></div><div class="shap-v">0.014</div></div>
+            <div class="shap-row"><div class="shap-name">mean_speed</div><div class="shap-bw"><div class="shap-bf" style="width:100.0%"></div></div><div class="shap-v">1.379</div></div>
+            <div class="shap-row"><div class="shap-name">mean_headway</div><div class="shap-bw"><div class="shap-bf" style="width:71.3%"></div></div><div class="shap-v">0.983</div></div>
+            <div class="shap-row"><div class="shap-name">min_headway</div><div class="shap-bw"><div class="shap-bf" style="width:23.8%"></div></div><div class="shap-v">0.328</div></div>
+            <div class="shap-row"><div class="shap-name">std_speed</div><div class="shap-bw"><div class="shap-bf" style="width:20.5%"></div></div><div class="shap-v">0.282</div></div>
+            <div class="shap-row"><div class="shap-name">lat_std</div><div class="shap-bw"><div class="shap-bf" style="width:18.6%"></div></div><div class="shap-v">0.257</div></div>
+            <div class="shap-row"><div class="shap-name">std_acc</div><div class="shap-bw"><div class="shap-bf" style="width:16.4%"></div></div><div class="shap-v">0.226</div></div>
+            <div class="shap-row"><div class="shap-name">max_delta_v</div><div class="shap-bw"><div class="shap-bf" style="width:12.0%"></div></div><div class="shap-v">0.165</div></div>
+            <div class="shap-row"><div class="shap-name">mean_acc</div><div class="shap-bw"><div class="shap-bf" style="width:8.1%"></div></div><div class="shap-v">0.112</div></div>
+            <div class="shap-row"><div class="shap-name">mean_delta_v</div><div class="shap-bw"><div class="shap-bf" style="width:7.5%"></div></div><div class="shap-v">0.103</div></div>
+            <div class="shap-row"><div class="shap-name">cmv_flag</div><div class="shap-bw"><div class="shap-bf" style="width:0.3%"></div></div><div class="shap-v">0.005</div></div>
           </div>
         </div>
 
@@ -586,11 +586,11 @@ const DATA = {
           <table class="dtbl" style="margin-top:12px">
             <thead><tr><th>Group</th><th>Total Windows</th><th>Near-Miss</th><th>Near-Miss Rate</th></tr></thead>
             <tbody>
-              <tr><td>CMV Involved</td><td>247</td><td>207</td><td><span class="badge b-orange">83.8%</span></td></tr>
-              <tr><td>No CMV</td><td>2,890</td><td>2,470</td><td><span class="badge b-red">85.5%</span></td></tr>
+              <tr><td>CMV Involved</td><td>537</td><td>317</td><td><span class="badge b-orange">59.0%</span></td></tr>
+              <tr><td>No CMV</td><td>8,987</td><td>5,888</td><td><span class="badge b-orange">65.5%</span></td></tr>
             </tbody>
           </table>
-          <div class="finding-box"><strong>Counterintuitive finding:</strong> CMV-involved windows have a <em>slightly lower</em> near-miss rate (83.8%) than non-CMV (85.5%). This may reflect CMV drivers maintaining larger following distances by training/regulation. This is a real computed result — worth investigating further with more data.</div>
+          <div class="finding-box"><strong>Key finding:</strong> CMV-involved windows have a <em>lower</em> near-miss rate (59.0%) than non-CMV (65.5%). This may reflect CMV drivers maintaining larger following distances due to training/regulation. The difference is more pronounced in this analysis. Real computed result — worth investigating further with a larger dataset.</div>
         </div>
       </div>
     </div>
@@ -607,88 +607,88 @@ const DATA = {
         <div class="corr-card" style="border-top:3px solid #ef4444">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
             <div><div class="corr-name">US-101 · Hollywood Freeway</div><div class="corr-loc">Los Angeles, CA · Southbound · 640m</div></div>
-            <span class="badge b-teal">78.8% of data</span>
+            <span class="badge b-teal">69.8% of data</span>
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
-            <span class="badge b-red">Near-Miss: 90.1%</span>
-            <span class="badge b-red">Risk Score: 0.900</span>
-            <span class="badge b-gray">CMV: 8.5%</span>
-            <span class="badge b-blue">n=2,472</span>
+            <span class="badge b-red">Near-Miss: 72.4%</span>
+            <span class="badge b-orange">Risk Score: 0.724</span>
+            <span class="badge b-gray">CMV: 5.6%</span>
+            <span class="badge b-blue">n=6,647</span>
           </div>
           <div class="corr-stats">
-            <div><div class="cs-val">13.1</div><div class="cs-lbl">Avg speed (mph)</div></div>
-            <div><div class="cs-val">80.2</div><div class="cs-lbl">Avg headway (ft)</div></div>
-            <div><div class="cs-val">22.1</div><div class="cs-lbl">Min headway (ft)</div></div>
-            <div><div class="cs-val">16.2</div><div class="cs-lbl">Lat std (ft)</div></div>
-            <div><div class="cs-val">19.1</div><div class="cs-lbl">Avg ΔV (ft/s)</div></div>
-            <div><div class="cs-val">211</div><div class="cs-lbl">CMV windows</div></div>
+            <div><div class="cs-val">12.7</div><div class="cs-lbl">Avg speed (mph)</div></div>
+            <div><div class="cs-val">75.7</div><div class="cs-lbl">Avg headway (ft)</div></div>
+            <div><div class="cs-val">27.8</div><div class="cs-lbl">Min headway (ft)</div></div>
+            <div><div class="cs-val">12.9</div><div class="cs-lbl">Lat std (ft)</div></div>
+            <div><div class="cs-val">23.2</div><div class="cs-lbl">Avg ΔV (ft/s)</div></div>
+            <div><div class="cs-val">374</div><div class="cs-lbl">CMV windows</div></div>
           </div>
         </div>
 
         <div class="corr-card" style="border-top:3px solid #3b82f6">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
             <div><div class="corr-name">I-80 · Eastbound Freeway</div><div class="corr-loc">Emeryville, SF Bay Area, CA</div></div>
-            <span class="badge b-blue">18.4% of data</span>
+            <span class="badge b-blue">24.0% of data</span>
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
-            <span class="badge b-yellow">Near-Miss: 63.3%</span>
-            <span class="badge b-yellow">Risk Score: 0.649</span>
-            <span class="badge b-gray">CMV: 5.0%</span>
-            <span class="badge b-blue">n=578</span>
+            <span class="badge b-blue">Near-Miss: 39.6%</span>
+            <span class="badge b-blue">Risk Score: 0.411</span>
+            <span class="badge b-gray">CMV: 5.1%</span>
+            <span class="badge b-blue">n=2,281</span>
           </div>
           <div class="corr-stats">
-            <div><div class="cs-val">9.2</div><div class="cs-lbl">Avg speed (mph)</div></div>
-            <div><div class="cs-val">57.2</div><div class="cs-lbl">Avg headway (ft)</div></div>
-            <div><div class="cs-val">24.2</div><div class="cs-lbl">Min headway (ft)</div></div>
-            <div><div class="cs-val">8.0</div><div class="cs-lbl">Lat std (ft)</div></div>
-            <div><div class="cs-val">6.1</div><div class="cs-lbl">Avg ΔV (ft/s)</div></div>
-            <div><div class="cs-val">29</div><div class="cs-lbl">CMV windows</div></div>
+            <div><div class="cs-val">7.4</div><div class="cs-lbl">Avg speed (mph)</div></div>
+            <div><div class="cs-val">51.3</div><div class="cs-lbl">Avg headway (ft)</div></div>
+            <div><div class="cs-val">24.5</div><div class="cs-lbl">Min headway (ft)</div></div>
+            <div><div class="cs-val">7.4</div><div class="cs-lbl">Lat std (ft)</div></div>
+            <div><div class="cs-val">8.4</div><div class="cs-lbl">Avg ΔV (ft/s)</div></div>
+            <div><div class="cs-val">117</div><div class="cs-lbl">CMV windows</div></div>
           </div>
-          <div class="finding-box" style="font-size:11px"><strong>Lowest risk corridor:</strong> Lower speed (9.2 mph) and lower lat_std (8.0 ft) vs US-101 — consistent with the model's lower predicted risk score (0.649).</div>
+          <div class="finding-box" style="font-size:11px"><strong>Lowest risk corridor:</strong> Lower speed (7.4 mph) and lower lat_std (7.4 ft) vs US-101 — consistent with the model's lower predicted risk score (0.411).</div>
         </div>
 
         <div class="corr-card" style="border-top:3px solid #f97316">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
             <div><div class="corr-name">Lankershim Boulevard</div><div class="corr-loc">North Hollywood, Los Angeles, CA · Urban surface street</div></div>
-            <span class="badge b-warn">n=73 · Limited</span>
+            <span class="badge b-blue">n=442</span>
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
-            <span class="badge b-red">Near-Miss: 97.3%</span>
-            <span class="badge b-red">Risk Score: 0.979</span>
-            <span class="badge b-gray">CMV: 9.6%</span>
-            <span class="badge b-orange">n=73</span>
+            <span class="badge b-red">Near-Miss: 84.2%</span>
+            <span class="badge b-red">Risk Score: 0.821</span>
+            <span class="badge b-gray">CMV: 8.6%</span>
+            <span class="badge b-orange">n=442</span>
           </div>
           <div class="corr-stats">
-            <div><div class="cs-val">14.3</div><div class="cs-lbl">Avg speed (mph)</div></div>
-            <div><div class="cs-val">93.6</div><div class="cs-lbl">Avg headway (ft)</div></div>
-            <div><div class="cs-val">23.6</div><div class="cs-lbl">Min headway (ft)</div></div>
-            <div><div class="cs-val">21.3</div><div class="cs-lbl">Lat std (ft)</div></div>
-            <div><div class="cs-val">77.7</div><div class="cs-lbl">Avg ΔV (ft/s)</div></div>
-            <div><div class="cs-val">7</div><div class="cs-lbl">CMV windows</div></div>
+            <div><div class="cs-val">13.1</div><div class="cs-lbl">Avg speed (mph)</div></div>
+            <div><div class="cs-val">98.8</div><div class="cs-lbl">Avg headway (ft)</div></div>
+            <div><div class="cs-val">24.3</div><div class="cs-lbl">Min headway (ft)</div></div>
+            <div><div class="cs-val">20.3</div><div class="cs-lbl">Lat std (ft)</div></div>
+            <div><div class="cs-val">81.6</div><div class="cs-lbl">Avg ΔV (ft/s)</div></div>
+            <div><div class="cs-val">38</div><div class="cs-lbl">CMV windows</div></div>
           </div>
-          <div class="warn-box" style="font-size:11px"><strong>High ΔV (77.7 ft/s):</strong> Urban stop-and-go on a surface street creates sharp speed changes. Real computed value — not an error. But small sample (n=73) limits generalizability.</div>
+          <div class="warn-box" style="font-size:11px"><strong>High ΔV (81.6 ft/s):</strong> Urban stop-and-go on a surface street creates sharp speed changes. Real computed value — not an error. With 442 windows this is more robust than earlier analysis.</div>
         </div>
 
         <div class="corr-card" style="border-top:3px solid #eab308">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
             <div><div class="corr-name">Peachtree Street</div><div class="corr-loc">Atlanta, Georgia · Urban arterial</div></div>
-            <span class="badge b-red">n=14 · Very Low</span>
+            <span class="badge b-warn">n=154 · Small Sample</span>
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
-            <span class="badge b-orange">Near-Miss: 85.7%</span>
-            <span class="badge b-orange">Risk Score: 0.855</span>
-            <span class="badge b-gray">CMV: 0%</span>
-            <span class="badge b-yellow">n=14</span>
+            <span class="badge b-orange">Near-Miss: 74.0%</span>
+            <span class="badge b-orange">Risk Score: 0.737</span>
+            <span class="badge b-gray">CMV: 5.2%</span>
+            <span class="badge b-yellow">n=154</span>
           </div>
           <div class="corr-stats">
-            <div><div class="cs-val">13.8</div><div class="cs-lbl">Avg speed (mph)</div></div>
-            <div><div class="cs-val">91.6</div><div class="cs-lbl">Avg headway (ft)</div></div>
-            <div><div class="cs-val">26.1</div><div class="cs-lbl">Min headway (ft)</div></div>
-            <div><div class="cs-val">19.7</div><div class="cs-lbl">Lat std (ft)</div></div>
-            <div><div class="cs-val">12.4</div><div class="cs-lbl">Avg ΔV (ft/s)</div></div>
-            <div><div class="cs-val">0</div><div class="cs-lbl">CMV windows</div></div>
+            <div><div class="cs-val">11.2</div><div class="cs-lbl">Avg speed (mph)</div></div>
+            <div><div class="cs-val">109.9</div><div class="cs-lbl">Avg headway (ft)</div></div>
+            <div><div class="cs-val">21.9</div><div class="cs-lbl">Min headway (ft)</div></div>
+            <div><div class="cs-val">15.1</div><div class="cs-lbl">Lat std (ft)</div></div>
+            <div><div class="cs-val">69.7</div><div class="cs-lbl">Avg ΔV (ft/s)</div></div>
+            <div><div class="cs-val">8</div><div class="cs-lbl">CMV windows</div></div>
           </div>
-          <div class="warn-box" style="font-size:11px"><strong>Critically small sample (n=14).</strong> Only 14 windows exist for Peachtree in NGSIM. All stats shown are real but carry no statistical weight individually.</div>
+          <div class="warn-box" style="font-size:11px"><strong>Limited sample (n=154).</strong> Peachtree has 154 windows — real NGSIM data from Atlanta. Stats are computed from actual trajectories; corridor-level generalization still requires caution given the sample size.</div>
         </div>
       </div>
 
@@ -745,7 +745,7 @@ const DATA = {
           </div>
           <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;border:1px solid var(--border);grid-column:span 2">
             <div style="font-size:12px;font-weight:700;color:var(--c-green);margin-bottom:5px">&#x1F4CB; Policy &amp; Corridor Investment Prioritization</div>
-            <div style="font-size:11.5px;color:var(--muted);line-height:1.55">Model-predicted risk scores (e.g., US-101 at 0.900 vs I-80 at 0.649) give transportation agencies a ranked, data-driven basis for allocating safety infrastructure investment — speed cameras, dynamic message signs, or increased enforcement — to the corridors where near-miss probability is highest.</div>
+            <div style="font-size:11.5px;color:var(--muted);line-height:1.55">Model-predicted risk scores (e.g., US-101 at 0.724 vs I-80 at 0.411) give transportation agencies a ranked, data-driven basis for allocating safety infrastructure investment — speed cameras, dynamic message signs, or increased enforcement — to the corridors where near-miss probability is highest.</div>
           </div>
         </div>
       </div>
@@ -859,7 +859,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   // Risk bars overview
   const rb=document.getElementById('riskBarsOverview');
   const corrOrder=['lankershim','us-101','peachtree','i-80'];
-  const riskColors={'lankershim':'#ef4444','us-101':'#ef4444','peachtree':'#f97316','i-80':'#eab308'};
+  const riskColors={'lankershim':'#ef4444','us-101':'#ef4444','peachtree':'#ef4444','i-80':'#eab308'};
   corrOrder.forEach(k=>{
     const d=DATA.corridor_risk[k];
     const pct=Math.round(d.mean*100);
